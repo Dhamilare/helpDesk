@@ -1,0 +1,160 @@
+{% load static %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#7C3AED',
+          'primary-dark': '#6D28D9',
+          'primary-light': '#F3E8FF',
+          'accent-blue': '#3B82F6',
+          'gray-dark': '#374151',
+          'gray-medium': '#6B7280',
+        },
+        boxShadow: {
+          'custom-light': '0 4px 15px rgba(0, 0, 0, 0.08)',
+          'custom-md': '0 8px 30px rgba(0, 0, 0, 0.12)',
+        }
+      },
+    },
+  };
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+{% endblock extra_head %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-dark to-primary flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-6xl bg-white rounded-2xl shadow-custom-md overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 transform hover:scale-[1.005] transition-transform duration-300 ease-in-out">
+    
+    <!-- Left Panel -->
+    <div class="hidden md:flex flex-col justify-center items-center text-white p-12 bg-gradient-to-br from-primary to-primary-dark via-primary-dark relative overflow-hidden">
+      <div class="absolute inset-0 bg-black opacity-10"></div>
+      <div class="relative z-10 text-center">
+        <h1 class="text-5xl font-extrabold mb-5 leading-tight tracking-wide">Welcome Aboard!</h1>
+        <p class="text-lg opacity-95 mb-8 max-w-md mx-auto font-light leading-relaxed">
+          Your intuitive platform for seamless support management and elevated customer satisfaction.
+        </p>
+        <ul class="space-y-4 text-left w-full max-w-sm text-base">
+          <li class="flex items-start gap-4">
+            <i class="fas fa-ticket-alt text-primary-light text-2xl mt-1"></i>
+            <span>Effortless Ticket Management: Streamline all support requests from one central hub.</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <i class="fas fa-book-open text-primary-light text-2xl mt-1"></i>
+            <span>Comprehensive Knowledge Base: Empower users with instant answers and self-service options.</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <i class="fas fa-users-cog text-primary-light text-2xl mt-1"></i>
+            <span>Team Collaboration & Workflows: Enhance productivity with smart routing and team tools.</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <i class="fas fa-chart-line text-primary-light text-2xl mt-1"></i>
+            <span>Actionable Analytics: Gain insights into performance and identify areas for improvement.</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <i class="fas fa-headset text-primary-light text-2xl mt-1"></i>
+            <span>Superior Customer Support: Deliver prompt, efficient, and delightful service experiences.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="p-8 sm:p-10 md:p-12 lg:p-16 flex flex-col justify-center">
+      <h2 class="text-4xl font-bold text-center text-gray-dark mb-8 tracking-tight">Sign In</h2>
+
+      <!-- Success/Info Messages -->
+      {% if messages %}
+        <div class="mb-6 space-y-3">
+          {% for message in messages %}
+            <div class="rounded-lg px-4 py-3 text-sm font-medium border
+              {% if message.tags == 'success' %}
+                bg-green-50 text-green-800 border-green-200
+              {% elif message.tags == 'error' %}
+                bg-red-50 text-red-800 border-red-200
+              {% elif message.tags == 'warning' %}
+                bg-yellow-50 text-yellow-800 border-yellow-200
+              {% else %}
+                bg-gray-50 text-gray-800 border-gray-200
+              {% endif %}
+            ">
+              <i class="fas fa-info-circle mr-2"></i> {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Non-field Errors -->
+      {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-lg mb-6 text-sm flex items-center gap-3">
+          <i class="fas fa-exclamation-circle text-lg"></i>
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <form method="post" novalidate class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Username Field -->
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="block text-gray-dark text-sm font-medium mb-2">
+            {{ form.username.label }}
+          </label>
+          <div class="relative">
+            <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text"
+                   name="{{ form.username.name }}"
+                   id="{{ form.username.id_for_label }}"
+                   class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white text-gray-dark text-base transition duration-200"
+                   value="{{ form.username.value|default:'' }}"
+                   required>
+            {% for error in form.username.errors %}
+              <p class="text-sm text-red-600 mt-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i><span>{{ error }}</span></p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="block text-gray-dark text-sm font-medium mb-2">
+            {{ form.password.label }}
+          </label>
+          <div class="relative">
+            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="password"
+                   name="{{ form.password.name }}"
+                   id="{{ form.password.id_for_label }}"
+                   class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white text-gray-dark text-base transition duration-200"
+                   required>
+            {% for error in form.password.errors %}
+              <p class="text-sm text-red-600 mt-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i><span>{{ error }}</span></p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit"
+                class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+
+        <!-- Additional Links -->
+        <div class="text-center mt-5">
+          <a href="#" class="text-primary hover:underline text-sm font-medium">Forgot password?</a>
+        </div>
+        <div class="text-center mt-3 text-gray-medium text-base">
+          Don’t have an account? <a href="{% url 'register' %}" class="text-primary font-semibold hover:underline">Register New Account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="space-y-8"> {# General spacing for the dashboard sections #}
+        {# Dashboard Header #}
+        <h2 class="text-3xl font-bold text-gray-800">Dashboard</h2>
+        <div class="border-b border-gray-200 pb-4"></div> {# A modern separator #}
+
+        {# Stat Cards Section #}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+            {# Total Tickets Card #}
+            <div class="bg-blue-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
+                <h5 class="text-lg font-semibold mb-2">Total Tickets</h5>
+                <p class="text-5xl font-bold" id="total-tickets">{{ total_tickets }}</p>
+                <i data-lucide="ticket" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
+            </div>
+            {# Open Tickets Card #}
+            <div class="bg-yellow-500 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
+                <h5 class="text-lg font-semibold mb-2">Open Tickets</h5>
+                <p class="text-5xl font-bold" id="open-tickets">{{ open_tickets }}</p>
+                <i data-lucide="folder-open" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
+            </div>
+            {# In Progress Tickets Card #}
+            <div class="bg-sky-500 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
+                <h5 class="text-lg font-semibold mb-2">In Progress</h5>
+                <p class="text-5xl font-bold" id="in-progress-tickets">{{ in_progress_tickets }}</p>
+                <i data-lucide="loader" class="h-10 w-10 mt-3 opacity-75 animate-spin-slow"></i> {# Lucide icon + slow spin #}
+            </div>
+            {# Resolved Tickets Card #}
+            <div class="bg-green-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
+                <h5 class="text-lg font-semibold mb-2">Resolved Tickets</h5>
+                <p class="text-5xl font-bold" id="resolved-tickets">{{ resolved_tickets }}</p>
+                <i data-lucide="check-circle" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
+            </div>
+            {# Overdue Tickets Card #}
+            <div class="bg-red-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
+                <h5 class="text-lg font-semibold mb-2">Overdue Tickets</h5>
+                <p class="text-5xl font-bold" id="overdue-tickets">{{ overdue_tickets }}</p>
+                <i data-lucide="alert-triangle" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
+            </div>
+        </div>
+
+        {# Recent Tickets Section #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Recent Tickets</h3>
+                {% if recent_tickets %}
+                    <ul class="bg-white rounded-lg shadow-md divide-y divide-gray-200 overflow-hidden">
+                        {% for ticket in recent_tickets %}
+                            <li class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                                <a href="{% url 'ticket_detail' ticket.pk %}" class="text-blue-600 hover:underline font-medium">
+                                    <i data-lucide="chevron-right" class="inline-block h-4 w-4 mr-1 text-gray-500"></i>
+                                    <span class="text-gray-800">{{ ticket.ticket_number }}</span> - {{ ticket.title }}
+                                </a>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                             {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                                             {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                             {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                                             {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
+                                             {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                    {{ ticket.get_status_display }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
+                        <i data-lucide="info" class="h-6 w-6 inline-block mb-2 text-blue-500"></i>
+                        <p>No recent tickets to display.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# This section (originally Priority Distribution) will now be directly after Recent Tickets if the second col of first row is removed, or if assigned tickets moves here #}
+            {% if user.userprofile.is_agent %}
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Assigned Tickets (Open/In Progress)</h3>
+                    {% if my_assigned_tickets %}
+                        <ul class="bg-white rounded-lg shadow-md divide-y divide-gray-200 overflow-hidden">
+                            {% for ticket in my_assigned_tickets %}
+                                <li class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                                    <a href="{% url 'ticket_detail' ticket.pk %}" class="text-blue-600 hover:underline font-medium">
+                                        <i data-lucide="chevron-right" class="inline-block h-4 w-4 mr-1 text-gray-500"></i>
+                                        <span class="text-gray-800">{{ ticket.ticket_number }}</span> - {{ ticket.title }}
+                                    </a>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                                 {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                                                 {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                                 {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                                                 {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
+                                                 {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                        {{ ticket.get_status_display }}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
+                            <i data-lucide="info" class="h-6 w-6 inline-block mb-2 text-blue-500"></i>
+                            <p>No tickets currently assigned to you.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Ensure Lucide icons are created for any dynamically added content by this template
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            // Initial call to update stats on page load
+            updateTicketStats();
+        });
+
+        // AJAX for dynamic dashboard updates (optional, but good for real-time)
+        function updateTicketStats() {
+            // Add loading spinner display
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner) spinner.classList.remove('hidden');
+
+            fetch('{% url "get_ticket_stats" %}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('total-tickets').innerText = data.total;
+                    document.getElementById('open-tickets').innerText = data.open;
+                    document.getElementById('in-progress-tickets').innerText = data.in_progress;
+                    document.getElementById('resolved-tickets').innerText = data.resolved;
+                    document.getElementById('overdue-tickets').innerText = data.overdue;
+                })
+                .catch(error => console.error('Error fetching ticket stats:', error))
+                .finally(() => {
+                    if (spinner) spinner.classList.add('hidden');
+                });
+        }
+
+        // Call the function periodically, e.g., every 60 seconds
+        setInterval(updateTicketStats, 60000);
+    </script>
+{% endblock %}

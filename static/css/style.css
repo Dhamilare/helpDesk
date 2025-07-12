@@ -1,0 +1,1153 @@
+/* static/css/main.css */
+
+/* --- 0. CSS Reset & Base Styles --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Brand / Primary Colors */
+    --sky-blue: #0ea5e9;
+    --indigo: #6366f1;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+
+    /* Ticket Status / Priority Colors */
+    --priority-low: #9ca3af; /* Cool Gray */
+    --priority-normal: #3b82f6; /* Blue */
+    --priority-high: #f97316; /* Orange */
+    --priority-critical: #ef4444; /* Red */
+    --status-resolved: #22c55e; /* Green */
+    --status-closed: #64748b; /* Slate */
+
+    /* UI Backgrounds / Surfaces */
+    --app-background: #f9fafb; /* Light Hex */
+    --card-background: #ffffff; /* Light Hex */
+    --input-background: #f3f4f6; /* Light Hex */
+    --section-header-background: #f1f5f9; /* Light Hex */
+    --border-color: #e5e7eb; /* Light Hex */
+    --tooltip-overlay: rgba(17, 24, 39, 0.5); /* #11182780 */
+
+    /* Typography Colors */
+    --primary-text: #1f2937;
+    --secondary-text: #6b7280;
+    --muted-text: #9ca3af;
+    --link-color: #2563eb;
+
+    /* Gradients (as variables for easier use) */
+    --gradient-cool-focus: linear-gradient(135deg, var(--indigo), var(--sky-blue));
+    --gradient-emerald-glow: linear-gradient(135deg, var(--emerald), #34d399); /* Tailwind emerald-400 */
+    --gradient-sunset-shift: linear-gradient(135deg, var(--amber), var(--rose));
+    --gradient-midnight: linear-gradient(135deg, #1e3a8a, #0f172a);
+
+    /* Material Design Login Page Specific Colors */
+    --md-purple-dark: #5E35B1; /* Darker Deep Purple */
+    --md-purple-main: #673AB7; /* Deep Purple */
+    --md-purple-light: #EDE7F6; /* Lighter shade of purple for icons */
+    --md-text-dark: #333; /* Dark grey for headings */
+    --md-text-medium: #777; /* Medium grey for labels/icons */
+    --md-border-light: #ccc; /* Light grey bottom border */
+
+    /* --- ADDED / UPDATED: Spacing Variables --- */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem;  /* 8px */
+    --spacing-md: 1rem;    /* 16px */
+    --spacing-lg: 1.5rem;  /* 24px */
+    --spacing-xl: 2rem;    /* 32px */
+
+    /* --- ADDED / UPDATED: Border Radius Variables --- */
+    --border-radius: 0.25rem; /* 4px (default for many elements) */
+    --border-radius-lg: 0.5rem; /* 8px (for cards) */
+    --border-radius-full: 9999px; /* For pill shape */
+
+    /* --- ADDED / UPDATED: Shadow Variables --- */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* --- ADDED / UPDATED: Transition Variables --- */
+    --transition-speed: 0.3s; /* Default transition duration */
+    --transition-fast: 0.15s; /* Faster transition duration */
+}
+
+html {
+    font-size: 16px; /* Base font size */
+}
+
+body {
+    /* Century Gothic with fallbacks for cross-platform compatibility */
+    /* Note: Ensure 'Century Gothic' is available (web font or system font) */
+    font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    line-height: 1.6;
+    color: var(--primary-text);
+    background-color: var(--app-background);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    width: 100%;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+
+a:hover {
+    color: var(--sky-blue); /* Changed to Sky Blue on hover for links for better contrast */
+    text-decoration: underline;
+}
+
+/* --- 1. Header & Navigation --- */
+.main-header {
+    background-color: var(--card-background);
+    padding: var(--spacing-md) 0;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.logo a {
+    color: var(--primary-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo i {
+    margin-right: var(--spacing-sm);
+    color: var(--sky-blue); /* Sky Blue for logo icon */
+    font-size: 1.5em;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.main-nav a, .main-nav span {
+    color: var(--secondary-text);
+    font-weight: 500;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    display: flex;
+    align-items: center;
+}
+
+.main-nav a:hover {
+    background-color: var(--input-background); /* Lighter background on hover */
+    color: var(--sky-blue); /* Sky Blue on hover */
+    text-decoration: none;
+}
+
+.main-nav i {
+    margin-right: var(--spacing-xs);
+}
+
+/* Sidebar Specific Styles */
+.main-sidebar {
+    position: fixed;
+    inset-y: 0;
+    left: 0;
+    z-index: 30;
+    background-color: var(--card-background);
+    width: 256px; /* 64 Tailwind units */
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) ease-in-out;
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+}
+
+.main-sidebar.open {
+    transform: translateX(0);
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+    .main-sidebar {
+        position: relative;
+        transform: translateX(0);
+        box-shadow: none;
+    }
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    color: var(--secondary-text);
+    font-weight: 500;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    margin-bottom: var(--spacing-sm);
+    text-decoration: none; /* Ensure no underline */
+}
+
+.sidebar-link i {
+    margin-right: var(--spacing-md);
+    font-size: 1.2em;
+}
+
+.sidebar-link:hover {
+    background-color: var(--input-background);
+    color: var(--sky-blue);
+}
+
+.sidebar-link.active {
+    background-color: var(--sky-blue); /* Sky Blue for active */
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+.sidebar-link.active:hover {
+    background-color: var(--sky-blue); /* Keep active color on hover */
+    color: white;
+}
+
+
+/* --- 2. Typography & Headings --- */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-text);
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+p {
+    margin-bottom: var(--spacing-sm);
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    color: var(--sky-blue); /* Sky Blue for page titles */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-title i {
+    margin-right: var(--spacing-sm);
+    font-size: 0.8em;
+    color: var(--primary-text);
+}
+
+
+/* --- 3. Buttons --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color var(--transition-speed), transform 0.1s ease-out, box-shadow var(--transition-speed);
+    text-decoration: none;
+    text-align: center;
+    box-shadow: var(--shadow-sm); /* Default shadow for buttons */
+}
+
+.btn i {
+    margin-right: var(--spacing-xs);
+}
+
+.btn-primary {
+    background-color: var(--sky-blue); /* Sky Blue */
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0c8cd6; /* Darker Sky Blue */
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background-color: var(--status-closed); /* Slate for secondary */
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker Slate */
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+}
+
+.btn-danger {
+    background-color: var(--rose); /* Rose for danger/logout */
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #d62c4a; /* Darker Rose */
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+}
+
+/* Material Design Button */
+.btn-material {
+    background-color: var(--md-purple-main); /* Deep Purple button */
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Button shadow */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+    border: none;
+    display: inline-flex; /* Ensure icon alignment */
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-material:hover {
+    background-color: var(--md-purple-dark); /* Darker Deep Purple on hover */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-link {
+    color: var(--md-purple-main); /* Deep Purple for links */
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    color: var(--md-purple-dark); /* Darker Deep Purple on hover */
+    text-decoration: underline;
+}
+
+
+/* --- 4. Cards & Containers --- */
+.card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-lg); /* Larger radius for cards */
+    box-shadow: var(--shadow-md); /* Medium shadow for cards */
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Specific card for login/register */
+.auth-card {
+    background-color: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-2xl); /* More prominent shadow */
+    width: 100%;
+    max-width: 480px; /* Max-w-md equivalent */
+    transform: scale(1);
+    transition: transform var(--transition-speed);
+    border: 1px solid var(--border-color);
+}
+.auth-card:hover {
+    transform: scale(1.01);
+}
+
+
+/* Dashboard Stats Cards */
+.stat-card {
+    position: relative;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    color: white;
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.stat-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card .icon-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: var(--spacing-md);
+    opacity: 0.2;
+}
+.stat-card .icon-overlay i {
+    height: 64px; /* h-16 */
+    width: 64px; /* w-16 */
+    color: white;
+}
+
+.stat-card h4 {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.9;
+    color: white; /* Ensure text is white */
+}
+.stat-card p {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: bold;
+    margin-bottom: 0;
+}
+.stat-card .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px; /* h-1 */
+    background-color: white;
+    opacity: 0.2;
+}
+
+/* Specific Stat Card Colors */
+.stat-card.bg-indigo { background-color: var(--indigo); }
+.stat-card.bg-rose { background-color: var(--rose); }
+.stat-card.bg-emerald { background-color: var(--emerald); }
+.stat-card.bg-amber { background-color: var(--amber); }
+
+
+/* --- 5. Forms --- */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500; /* Medium font weight */
+    color: var(--secondary-text);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+input[type="date"],
+input[type="datetime-local"],
+textarea,
+select {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--primary-text);
+    background-color: var(--input-background); /* Input background */
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="file"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--sky-blue); /* Sky Blue focus */
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25); /* Sky Blue shadow */
+    outline: none;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-help-text {
+    font-size: 0.85rem;
+    color: var(--muted-text);
+    margin-top: var(--spacing-xs);
+    display: block;
+}
+
+.form-error {
+    color: var(--priority-critical); /* Red for errors */
+    font-size: 0.85rem;
+    margin-top: var(--spacing-xs);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-md);
+}
+
+/* Specific form styles for filtering */
+.filter-section .filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+.filter-section .form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+.filter-section .form-group-checkbox input[type="checkbox"] {
+    width: auto; /* Override 100% width */
+    margin: 0;
+}
+.filter-section .form-group-checkbox .checkbox-label {
+    margin: 0;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    color: var(--primary-text);
+}
+.filter-section .form-group-checkbox .checkbox-label i {
+    margin-right: var(--spacing-xs);
+    color: var(--sky-blue);
+}
+
+
+@media (max-width: 768px) {
+    .filter-section .filter-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Material Design Input Group (Login/Register specific) */
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.input-group .form-control {
+    border: none;
+    border-bottom: 2px solid var(--md-border-light); /* Light grey bottom border */
+    border-radius: 0;
+    padding: 10px 10px 10px 40px; /* Space for icon */
+    box-shadow: none !important;
+    transition: border-color 0.3s ease-in-out;
+    background-color: transparent; /* Ensure transparent background */
+    color: var(--primary-text);
+}
+
+.input-group .form-control:focus {
+    border-bottom-color: var(--md-purple-main); /* Deep Purple focus effect */
+}
+
+.input-group .form-control::placeholder {
+    color: transparent; /* Hide default placeholder */
+}
+
+.input-group .form-label {
+    position: absolute;
+    top: 10px;
+    left: 40px; /* Align with input text */
+    color: var(--md-text-medium); /* Medium grey label */
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
+    font-size: 1rem; /* Base font size for label */
+}
+
+.input-group .form-control:focus + .form-label,
+.input-group .form-control:not(:placeholder-shown) + .form-label {
+    top: -15px; /* Move up */
+    font-size: 0.8rem; /* Shrink */
+    color: var(--md-purple-main); /* Deep Purple label on focus/filled */
+}
+.input-group .form-control:focus::placeholder {
+    color: var(--muted-text); /* Show placeholder on focus */
+}
+
+.input-group .input-icon {
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    color: var(--md-text-medium); /* Medium grey icon */
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+
+/* --- 6. Messages (Django) --- */
+.message-container {
+    margin-bottom: var(--spacing-md);
+}
+
+.message {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+    border: 1px solid #c3e6cb;
+}
+
+.message.info {
+    background-color: #d1ecf1; /* Light blue */
+    color: #0c5460; /* Dark blue */
+    border: 1px solid #bee5eb;
+}
+
+.message.warning {
+    background-color: #fff3cd; /* Light yellow */
+    color: #856404; /* Dark yellow */
+    border: 1px solid #ffeeba;
+}
+
+.message.error {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red */
+    border: 1px solid #f5c6cb;
+}
+
+/* --- 7. Ticket List Styles --- */
+.ticket-list {
+    display: grid;
+    gap: var(--spacing-md);
+    /* For responsiveness, adjust grid columns */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.ticket-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+}
+.ticket-card.ticket-overdue {
+    border: 2px solid var(--priority-critical); /* Red border for overdue */
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); /* Red shadow for overdue */
+}
+
+
+.ticket-card .ticket-title {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.3rem;
+    color: var(--primary-text);
+}
+
+.ticket-card .ticket-title a {
+    color: var(--primary-text);
+}
+
+.ticket-card .ticket-title a:hover {
+    color: var(--sky-blue); /* Sky Blue on hover */
+}
+
+.ticket-card .ticket-title i {
+    margin-right: var(--spacing-xs);
+    font-size: 0.8em; /* Adjust icon size relative to text */
+    color: var(--secondary-text);
+}
+
+.ticket-meta {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.ticket-meta span i {
+    margin-right: var(--spacing-xs);
+}
+
+.ticket-meta .overdue-text {
+    color: var(--priority-critical); /* Red for overdue text */
+    font-weight: bold;
+}
+
+.ticket-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--border-radius-full); /* Pill shape */
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: white; /* Default badge text color to white */
+}
+
+/* Status Badges */
+.badge-status-open { background-color: var(--priority-critical); } /* Red */
+.badge-status-in-progress { background-color: var(--priority-normal); } /* Blue */
+.badge-status-pending { background-color: var(--amber); color: var(--primary-text); } /* Amber, with darker text */
+.badge-status-resolved { background-color: var(--status-resolved); } /* Green */
+.badge-status-closed { background-color: var(--status-closed); } /* Slate */
+.badge-status-cancelled { background-color: var(--rose); } /* Rose */
+
+/* Priority Badges (using specific colors) */
+.badge-priority-low { background-color: var(--priority-low); } /* Cool Gray */
+.badge-priority-normal { background-color: var(--priority-normal); } /* Blue */
+.badge-priority-high { background-color: var(--priority-high); } /* Orange */
+.badge-priority-critical { background-color: var(--priority-critical); } /* Red */
+/* Note: Emergency is not in your provided list, keeping it generic if needed. */
+.badge-priority-emergency { background-color: #900C3F; } /* Example: Maroon */
+
+
+/* Department/Category Badges */
+.badge-department, .badge-category {
+    background-color: var(--input-background); /* Light gray background */
+    color: var(--primary-text);
+}
+
+
+/* --- 8. Pagination --- */
+.pagination {
+    margin-top: var(--spacing-lg);
+    text-align: center;
+    padding: var(--spacing-md);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.pagination a, .pagination .current-page {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: var(--link-color);
+    font-weight: 500;
+    transition: background-color var(--transition-speed);
+}
+
+.pagination a:hover {
+    background-color: var(--input-background);
+    color: var(--sky-blue);
+}
+
+.pagination .current-page {
+    background-color: var(--sky-blue); /* Sky Blue for current page */
+    color: white;
+    cursor: default;
+}
+
+.pagination .current-page:hover {
+    background-color: var(--sky-blue); /* No change on hover for current page */
+}
+
+/* --- 9. Ticket Detail Styles --- */
+.ticket-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    background-color: var(--card-background);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-item .label {
+    font-weight: 600; /* Semibold */
+    color: var(--secondary-text);
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.detail-item .label i {
+    margin-right: var(--spacing-xs);
+    color: var(--sky-blue); /* Sky Blue for detail icons */
+}
+
+.detail-item .value {
+    color: var(--primary-text);
+    font-size: 1rem;
+    word-break: break-word; /* For long values */
+}
+.detail-item .value.overdue-text {
+    color: var(--priority-critical); /* Red for overdue text */
+    font-weight: bold;
+}
+
+
+.ticket-description-card {
+    padding: var(--spacing-lg);
+}
+
+.ticket-description-card h2 {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+.ticket-description-card h2 i {
+    margin-right: var(--spacing-sm);
+    color: var(--sky-blue); /* Sky Blue for description icon */
+}
+
+.ticket-description-card .resolution-header {
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
+}
+.ticket-description-card .resolution-header i {
+    color: var(--status-resolved); /* Green for resolution icon */
+}
+
+
+.attachment-link {
+    margin-top: var(--spacing-md);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    color: var(--secondary-text);
+}
+.attachment-link i {
+    margin-right: var(--spacing-xs);
+    color: var(--sky-blue); /* Sky Blue for attachment icon */
+}
+
+.action-buttons {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end; /* Align to right */
+    flex-wrap: wrap;
+}
+
+/* --- 10. Attachment Section --- */
+.attachment-section h2 {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+.attachment-section h2 i {
+    margin-right: var(--spacing-sm);
+    color: var(--sky-blue); /* Sky Blue for attachment section icon */
+}
+
+.attachment-list {
+    margin-bottom: var(--spacing-lg);
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.95rem;
+    color: var(--primary-text);
+}
+.attachment-item i {
+    color: var(--sky-blue); /* Sky Blue for attachment item icon */
+}
+.attachment-item .attachment-meta {
+    font-size: 0.85rem;
+    color: var(--muted-text);
+}
+
+
+/* --- 11. Comment Section --- */
+.comment-section h2, .comment-section h3 {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+.comment-section h2 i, .comment-section h3 i {
+    margin-right: var(--spacing-sm);
+    color: var(--sky-blue); /* Sky Blue for comment section icons */
+}
+
+
+.comment-list {
+    margin-bottom: var(--spacing-lg);
+}
+
+.comment-item {
+    background-color: var(--input-background); /* Lighter background for comments */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+.comment-item.comment-internal {
+    background-color: #fff9e6; /* Light yellow for internal notes */
+    border-color: #ffeb99;
+}
+
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    flex-wrap: wrap;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: var(--primary-text);
+    display: flex;
+    align-items: center;
+}
+
+.comment-author i {
+    margin-right: var(--spacing-xs);
+    color: var(--sky-blue); /* Sky Blue for author icon */
+}
+
+.comment-date i {
+    margin-right: var(--spacing-xs);
+}
+
+.comment-content p {
+    margin-bottom: 0;
+    word-wrap: break-word; /* Ensure long words break */
+}
+.comment-content .internal-note {
+    font-style: italic;
+    font-size: 0.85em;
+    color: var(--secondary-text); /* Secondary text for internal note */
+    margin-top: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+}
+.comment-content .internal-note i {
+    margin-right: var(--spacing-xs);
+    color: var(--secondary-text);
+}
+.no-comments-message {
+    font-style: italic;
+    color: var(--muted-text);
+    margin-top: var(--spacing-sm);
+}
+
+
+/* --- 12. Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--muted-text);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--sky-blue); /* Sky Blue for empty state icon */
+    margin-bottom: var(--spacing-md);
+    display: block;
+}
+
+/* --- 13. Footer --- */
+.main-footer {
+    background-color: var(--primary-text); /* Dark background for footer */
+    color: white;
+    padding: var(--spacing-md) 0;
+    margin-top: auto; /* Push footer to the bottom */
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* --- 14. Mobile Responsiveness (Media Queries) --- */
+@media (max-width: 768px) {
+    .main-header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        width: 100%;
+    }
+    .main-nav li {
+        width: 100%;
+        text-align: center;
+    }
+    .main-nav a, .main-nav span {
+        justify-content: center;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .card {
+        padding: var(--spacing-md);
+    }
+
+    .ticket-list {
+        grid-template-columns: 1fr; /* Stack tickets on small screens */
+    }
+
+    .ticket-details-grid {
+        grid-template-columns: 1fr; /* Stack details on small screens */
+    }
+
+    .action-buttons {
+        justify-content: center; /* Center buttons on mobile */
+    }
+
+    /* Material Design Login Page Responsive */
+    .login-card .row {
+        flex-direction: column; /* Stack columns on small screens */
+    }
+    .welcome-section {
+        border-bottom-left-radius: 0;
+        border-top-right-radius: var(--border-radius-lg); /* Apply radius to top right */
+    }
+    .form-section {
+        padding: 30px;
+    }
+    .welcome-section h1 {
+        font-size: 2rem;
+    }
+    .welcome-section p {
+        font-size: 1rem;
+    }
+    body.login-page-body { /* Apply specific padding for login page body */
+        padding: 10px;
+    }
+    .login-card {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.7rem; }
+    h3 { font-size: 1.3rem; }
+
+    .btn {
+        width: 100%; /* Full width buttons */
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .pagination a, .pagination .current-page {
+        padding: var(--spacing-xs);
+        font-size: 0.9rem;
+    }
+}
+
+/* Custom scrollbar for chat - kept from previous version */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Ensure icons are rendered - kept from previous version */
+.lucide {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Page transition styles (managed by JS for hidden/shown) - kept from previous version */
+.page-section {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.page-section.hidden {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    position: absolute; /* To prevent layout shift when hidden */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+.page-section:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    position: relative;
+    z-index: 1;
+}
