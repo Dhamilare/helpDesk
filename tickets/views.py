@@ -372,48 +372,45 @@ def upload_ticket_attachment(request, pk):
 def bulk_ticket_actions(request):
     """Handle bulk actions on tickets"""
     user = request.user
-    
-    # Check if user is agent or supervisor
-    if not (hasattr(user, 'userprofile') and 
-            (user.userprofile.is_agent or user.userprofile.is_supervisor)):
+
+    # Permission check
+    profile = getattr(user, 'userprofile', None)
+    if not profile or not (profile.is_agent or profile.is_supervisor):
         messages.error(request, 'Permission denied.')
         return redirect('ticket_list')
-    
+
     form = BulkTicketActionForm(request.POST)
     ticket_ids = request.POST.getlist('ticket_ids')
-    
+
     if not ticket_ids:
         messages.error(request, 'No tickets selected.')
         return redirect('ticket_list')
-    
+
     if form.is_valid():
         action = form.cleaned_data['action']
+        assigned_to = form.cleaned_data.get('assigned_to')
+        status = form.cleaned_data.get('status')
+        priority = form.cleaned_data.get('priority')
+
         tickets = Ticket.objects.filter(id__in=ticket_ids)
-        
-        # Filter tickets based on user permissions
-        if not user.userprofile.is_supervisor:
-            tickets = tickets.filter(
-                Q(assigned_to=user) | 
-                Q(department=user.userprofile.department)
-            )
-        
+        # apply permission restrictions
+        if not profile.is_supervisor:
+            tickets = tickets.filter(Q(assigned_to=user) | Q(department=profile.department))
+
         with transaction.atomic():
-            if action == 'assign' and form.cleaned_data['assigned_to']:
-                tickets.update(assigned_to=form.cleaned_data['assigned_to'])
-                messages.success(request, f'Successfully assigned {tickets.count()} tickets.')
-            
-            elif action == 'status' and form.cleaned_data['status']:
-                tickets.update(status=form.cleaned_data['status'])
-                messages.success(request, f'Successfully updated status for {tickets.count()} tickets.')
-            
-            elif action == 'priority' and form.cleaned_data['priority']:
-                tickets.update(priority=form.cleaned_data['priority'])
-                messages.success(request, f'Successfully updated priority for {tickets.count()} tickets.')
-            
+            if action == 'assign' and assigned_to:
+                updated = tickets.update(assigned_to=assigned_to)
+                messages.success(request, f'Successfully assigned {updated} tickets.')
+            elif action == 'status' and status:
+                updated = tickets.update(status=status)
+                messages.success(request, f'Successfully updated status for {updated} tickets.')
+            elif action == 'priority' and priority:
+                updated = tickets.update(priority=priority)
+                messages.success(request, f'Successfully updated priority for {updated} tickets.')
             elif action == 'close':
-                tickets.update(status='closed', closed_at=timezone.now())
-                messages.success(request, f'Successfully closed {tickets.count()} tickets.')
-    
+                updated = tickets.update(status='closed', closed_at=timezone.now())
+                messages.success(request, f'Successfully closed {updated} tickets.')
+
     return redirect('ticket_list')
 
 

@@ -5,235 +5,318 @@
 {% block title %}Tickets{% endblock %}
 
 {% block content %}
-    <div class="space-y-6">
-        <h2 class="text-3xl font-bold text-gray-800">Tickets</h2>
-        <div class="border-b border-gray-200 pb-4 mb-6"></div>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+            <i data-lucide="folder-kanban" class="w-8 h-8 mr-3 text-blue-600"></i> All Tickets
+        </h1>
 
-        {# Filter Form #}
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
-                {# Status Filter #}
-                <div>
-                    <label for="{{ filter_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    {{ filter_form.status|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Priority Filter #}
-                <div>
-                    <label for="{{ filter_form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                    {{ filter_form.priority|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Department Filter #}
-                <div>
-                    <label for="{{ filter_form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    {{ filter_form.department|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Category Filter #}
-                <div>
-                    <label for="{{ filter_form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    {{ filter_form.category|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Assigned To Filter #}
-                <div>
-                    <label for="{{ filter_form.assigned_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
-                    {{ filter_form.assigned_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Date From Filter #}
-                <div>
-                    <label for="{{ filter_form.date_from.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
-                    {{ filter_form.date_from|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Date To Filter #}
-                <div>
-                    <label for="{{ filter_form.date_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
-                    {{ filter_form.date_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Search Filter #}
-                <div class="md:col-span-2 lg:col-span-1"> {# Span more columns for search input #}
-                    <label for="{{ filter_form.search.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                    {{ filter_form.search|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"|attr:"placeholder:Search by title or description" }}
-                </div>
-                
-                {# Filter Buttons #}
-                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-0">
-                    <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <i data-lucide="filter" class="h-4 w-4 mr-2"></i> Apply Filters
-                    </button>
-                    <a href="{% url 'ticket_list' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <i data-lucide="rotate-ccw" class="h-4 w-4 mr-2"></i> Reset Filters
-                    </a>
-                </div>
-                {# Export CSV Button #}
-                {% if user.userprofile.is_agent or user.userprofile.is_supervisor %}
-                    <div class="flex items-end">
-                        <a href="{% url 'export_tickets_csv' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                           class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <i data-lucide="file-text" class="h-4 w-4 mr-2"></i> Export CSV
+        {# Filter and Bulk Action section - combined into one cohesive area #}
+        {% if user.is_staff or user.userprofile.is_supervisor %}
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-200">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5 mr-2 text-gray-600"></i> Filter & Bulk Actions
+                    </h2>
+                    {% if user.userprofile.is_agent or user.userprofile.is_supervisor %}
+                        <a href="{% url 'ticket_create' %}"
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                            <i data-lucide="plus-circle" class="h-4 w-4 mr-2"></i> Create New Ticket
                         </a>
-                    </div>
-                {% endif %}
-            </form>
-        </div>
+                    {% endif %}
+                </div>
 
-        {# Bulk Actions Form #}
-        <form method="post" action="{% url 'bulk_ticket_actions' %}" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            {% csrf_token %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
-                {# Bulk Action Type #}
-                <div>
-                    <label for="{{ bulk_action_form.action.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Bulk Action</label>
-                    {{ bulk_action_form.action|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Bulk Assign To #}
-                <div>
-                    <label for="{{ bulk_action_form.assigned_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
-                    {{ bulk_action_form.assigned_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Bulk Change Status #}
-                <div>
-                    <label for="{{ bulk_action_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Change Status</label>
-                    {{ bulk_action_form.status|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Bulk Change Priority #}
-                <div>
-                    <label for="{{ bulk_action_form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Change Priority</label>
-                    {{ bulk_action_form.priority|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                </div>
-                {# Bulk Action Button #}
-                <div class="col-span-full md:col-span-1 flex items-end"> {# Ensure button aligns #}
-                    <button type="submit" 
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 w-full md:w-auto" 
-                            onclick="return confirm('Are you sure you want to perform this bulk action?');">
-                        <i data-lucide="boxes" class="h-4 w-4 mr-2"></i> Apply Bulk Action
+                {# Filter Form #}
+                <form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+                    {# Status Filter #}
+                    <div>
+                        <label for="{{ filter_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        {{ filter_form.status|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Priority Filter #}
+                    <div>
+                        <label for="{{ filter_form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                        {{ filter_form.priority|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Department Filter #}
+                    <div>
+                        <label for="{{ filter_form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        {{ filter_form.department|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Category Filter #}
+                    <div>
+                        <label for="{{ filter_form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        {{ filter_form.category|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Assigned To Filter #}
+                    <div>
+                        <label for="{{ filter_form.assigned_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+                        {{ filter_form.assigned_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Date From Filter #}
+                    <div>
+                        <label for="{{ filter_form.date_from.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+                        {{ filter_form.date_from|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Date To Filter #}
+                    <div>
+                        <label for="{{ filter_form.date_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+                        {{ filter_form.date_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                    </div>
+                    {# Search Filter #}
+                    <div class="col-span-full sm:col-span-2 lg:col-span-1"> {# Span more columns for search input #}
+                        <label for="{{ filter_form.search.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                        {{ filter_form.search|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"|attr:"placeholder:Search by title or description" }}
+                    </div>
+
+                    {# Filter Buttons #}
+                    <div class="col-span-full flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-4">
+                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                            <i data-lucide="filter" class="h-4 w-4 mr-2"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'ticket_list' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                            <i data-lucide="rotate-ccw" class="h-4 w-4 mr-2"></i> Reset Filters
+                        </a>
+                        {% if user.userprofile.is_agent or user.userprofile.is_supervisor %}
+                            <a href="{% url 'export_tickets_csv' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+                               class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                                <i data-lucide="file-text" class="h-4 w-4 mr-2"></i> Export CSV
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+
+        {# Tickets Display Area (Card View) - NOW WRAPPED IN THE BULK ACTION FORM #}
+        {% if user.is_staff or user.userprofile.is_supervisor %}
+            <form method="post" action="{% url 'bulk_ticket_actions' %}" id="bulk-action-form"> {# Added id for easier JS targeting #}
+                {% csrf_token %}
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                        <i data-lucide="boxes" class="h-5 w-5 mr-2 text-gray-600"></i> Perform Bulk Actions
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
+                        {# Bulk Action Type #}
+                        <div>
+                            <label for="{{ bulk_action_form.action.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                            {{ bulk_action_form.action|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                        </div>
+                        {# Bulk Assign To #}
+                        <div>
+                            <label for="{{ bulk_action_form.assigned_to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
+                            {{ bulk_action_form.assigned_to|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                        </div>
+                        {# Bulk Change Status #}
+                        <div>
+                            <label for="{{ bulk_action_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Change Status</label>
+                            {{ bulk_action_form.status|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                        </div>
+                        {# Bulk Change Priority #}
+                        <div>
+                            <label for="{{ bulk_action_form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Change Priority</label>
+                            {{ bulk_action_form.priority|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="inline-flex items-center justify-center mt-6 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out"
+                            onclick="return confirm('Are you sure you want to perform this bulk action on selected tickets?');">
+                        <i data-lucide="check-square" class="h-4 w-4 mr-2"></i> Apply Selected Action
                     </button>
+
+                    <div class="flex items-center mt-6">
+                        <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2">
+                        <label for="select-all" class="text-sm font-medium text-gray-700">Select All Tickets (for bulk actions)</label>
+                    </div>
                 </div>
+        {% endif %} {# This closing div and form tag must come AFTER the tickets loop #}
+
+        {% if tickets %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for ticket in tickets %}
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden flex flex-col">
+                        <div class="p-5 flex-grow">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight">
+                                    <a href="{% url 'ticket_detail' ticket.pk %}" class="hover:text-blue-600 transition-colors">
+                                        #{{ ticket.ticket_number }} - {{ ticket.title }}
+                                    </a>
+                                </h3>
+                                {# THIS CHECKBOX IS NOW INSIDE THE BULK ACTION FORM #}
+                                <input type="checkbox" name="ticket_ids" value="{{ ticket.pk }}" class="ticket-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+
+                            <p class="text-sm text-gray-600 mb-4">{{ ticket.description|truncatechars:100 }}</p>
+
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i data-lucide="tag" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                    <span class="font-medium">Department:</span> {{ ticket.department.name }}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i data-lucide="git-fork" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                    <span class="font-medium">Category:</span> {{ ticket.category.name }}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i data-lucide="user" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                    <span class="font-medium">Submitter:</span> {{ ticket.submitter.get_full_name }}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i data-lucide="user-check" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                    <span class="font-medium">Assigned To:</span> {{ ticket.assigned_to.get_full_name|default:"Unassigned" }}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between mt-4 mb-4">
+                                {# Status Badge #}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                        {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                                        {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                        {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                                        {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
+                                        {% elif ticket.status == 'pending' %}bg-purple-100 text-purple-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <i data-lucide="{% if ticket.status == 'open' %}circle-dot{% elif ticket.status == 'in_progress' %}rotate-cw{% elif ticket.status == 'resolved' %}check-circle{% elif ticket.status == 'closed' %}x-circle{% else %}help-circle{% endif %}" class="w-3 h-3 mr-1"></i>
+                                    {{ ticket.get_status_display }}
+                                </span>
+
+                                {# Priority Badge #}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                        {% if ticket.priority.name == 'High' %}bg-red-100 text-red-800
+                                        {% elif ticket.priority.name == 'Medium' %}bg-orange-100 text-orange-800
+                                        {% elif ticket.priority.name == 'Low' %}bg-green-100 text-green-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <i data-lucide="{% if ticket.priority.name == 'High' %}chevrons-up{% elif ticket.priority.name == 'Medium' %}chevron-up{% elif ticket.priority.name == 'Low' %}chevron-down{% else %}minus{% endif %}" class="w-3 h-3 mr-1"></i>
+                                    {{ ticket.priority.name }}
+                                </span>
+                            </div>
+
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-200 flex justify-between items-center text-sm text-gray-500">
+                            <span class="flex items-center">
+                                <i data-lucide="clock" class="w-4 h-4 mr-1"></i> Created: {{ ticket.created_at|date:"Y-m-d" }}
+                            </span>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'ticket_detail' ticket.pk %}"
+                                   class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="eye" class="h-3 w-3 mr-1"></i> View
+                                </a>
+                                {% if user.is_authenticated and ticket|can_edit_ticket:user and ticket.status != 'closed' and user.is_staff %}
+                                    <a href="{% url 'ticket_update' ticket.pk %}"
+                                       class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out">
+                                        <i data-lucide="edit" class="h-3 w-3 mr-1"></i> Edit
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
 
-            {# Tickets Table #}
-            {% if tickets %}
-                <div class="mt-8 overflow-x-auto bg-white rounded-lg shadow-md">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket #</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitter</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for ticket in tickets %}
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="checkbox" name="ticket_ids" value="{{ ticket.pk }}" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ticket.ticket_number }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                                        <a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.title }}</a>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium 
-                                                     {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
-                                                     {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
-                                                     {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
-                                                     {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
-                                                     {% elif ticket.status == 'pending' %}bg-purple-100 text-purple-800
-                                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                            {{ ticket.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium" 
-                                              >
-                                            {{ ticket.priority.name }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ticket.department.name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ticket.submitter.get_full_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ticket.assigned_to.get_full_name|default:"Unassigned" }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ticket.created_at|date:"Y-m-d H:i" }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center space-x-2">
-                                            <a href="{% url 'ticket_detail' ticket.pk %}" 
-                                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                <i data-lucide="eye" class="h-3 w-3 mr-1"></i> View
-                                            </a>
-                                            {% if user.is_authenticated and ticket|can_edit_ticket:user %} {# Assuming can_edit_ticket filter or method #}
-                                                <a href="{% url 'ticket_update' ticket.pk %}" 
-                                                   class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                                                    <i data-lucide="edit" class="h-3 w-3 mr-1"></i> Edit
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                {# Pagination #}
-                {% if is_paginated %}
-                    <nav class="mt-6">
-                        <ul class="flex justify-center space-x-2">
-                            {% if page_obj.has_previous %}
-                                <li>
-                                    <a class="px-4 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 transition-colors" 
-                                       href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode|cut:'page=' }}{% endif %}">
-                                        Previous
-                                    </a>
-                                </li>
-                            {% endif %}
+            {# Pagination - still part of the content but outside the bulk action form #}
+            {% if is_paginated %}
+                <nav class="mt-8 flex justify-center" aria-label="Pagination">
+                    <ul class="flex items-center -space-x-px">
+                        {% if page_obj.has_previous %}
                             <li>
-                                <span class="px-4 py-2 leading-tight text-blue-600 bg-blue-50 border border-blue-300 rounded-md">
-                                    {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                                </span>
+                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode|cut:'page=' }}{% endif %}"
+                                   class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                                   <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </a>
                             </li>
-                            {% if page_obj.has_next %}
+                        {% endif %}
+
+                        {% for i in paginator.page_range %}
+                            {% if page_obj.number == i %}
                                 <li>
-                                    <a class="px-4 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 transition-colors" 
-                                       href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode|cut:'page=' }}{% endif %}">
-                                        Next
+                                    <a href="#" aria-current="page"
+                                       class="px-3 py-2 text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700">
+                                        {{ i }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="?page={{ i }}{% if request.GET %}&{{ request.GET.urlencode|cut:'page=' }}{% endif %}"
+                                       class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                                        {{ i }}
                                     </a>
                                 </li>
                             {% endif %}
-                        </ul>
-                    </nav>
-                {% endif %}
-            {% else %}
-                <div class="bg-white p-6 rounded-lg shadow-md text-center text-gray-600">
-                    <i data-lucide="info" class="h-6 w-6 inline-block mb-2 text-blue-500"></i>
-                    <p>No tickets found matching your criteria.</p>
-                </div>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li>
+                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode|cut:'page=' }}{% endif %}"
+                                   class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                                   <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             {% endif %}
-        </form> {# Closing tag for the bulk actions form #}
+
+        {% else %}
+            <div class="bg-white p-8 rounded-xl shadow-lg text-center text-gray-600 border border-gray-200">
+                <i data-lucide="ticket-slash" class="h-12 w-12 inline-block mb-4 text-blue-500"></i>
+                <p class="text-xl font-semibold">No tickets found matching your current filters.</p>
+                <p class="mt-2 text-lg">Try adjusting your search criteria or <a href="{% url 'ticket_list' %}" class="text-blue-600 hover:underline">resetting filters</a>.</p>
+            </div>
+        {% endif %}
+        {% if user.is_staff or user.userprofile.is_supervisor %}
+            </form> {# Closing tag for the bulk action form #}
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons(); // Initialize Lucide icons on page load
 
         // Handle "Select All" checkbox
         const selectAllCheckbox = document.getElementById('select-all');
-        const ticketCheckboxes = document.querySelectorAll('input[name="ticket_ids"]');
+        // IMPORTANT: Target checkboxes by their class now, and within the specific form
+        const bulkActionForm = document.getElementById('bulk-action-form');
+        const ticketCheckboxes = bulkActionForm ? bulkActionForm.querySelectorAll('input[name="ticket_ids"].ticket-checkbox') : [];
 
-        if (selectAllCheckbox) {
+
+        if (selectAllCheckbox && ticketCheckboxes.length > 0) {
             selectAllCheckbox.addEventListener('change', function() {
                 ticketCheckboxes.forEach(checkbox => {
                     checkbox.checked = selectAllCheckbox.checked;
                 });
             });
+        }
+
+        // Optional: Toggle bulk action fields based on selected action (requires some JS)
+        const bulkActionSelect = document.getElementById('{{ bulk_action_form.action.id_for_label }}');
+        const assignedToField = document.getElementById('{{ bulk_action_form.assigned_to.id_for_label }}').closest('div');
+        const statusField = document.getElementById('{{ bulk_action_form.status.id_for_label }}').closest('div');
+        const priorityField = document.getElementById('{{ bulk_action_form.priority.id_for_label }}').closest('div');
+
+        function toggleBulkFields() {
+            const selectedAction = bulkActionSelect.value;
+
+            // Hide all by default
+            assignedToField.style.display = 'none';
+            statusField.style.display = 'none';
+            priorityField.style.display = 'none';
+
+            // Show relevant field based on action
+            if (selectedAction === 'assign') {
+                assignedToField.style.display = 'block';
+            } else if (selectedAction === 'change_status') {
+                statusField.style.display = 'block';
+            } else if (selectedAction === 'change_priority') {
+                priorityField.style.display = 'block';
+            }
+        }
+
+        if (bulkActionSelect) {
+            bulkActionSelect.addEventListener('change', toggleBulkFields);
+            toggleBulkFields(); // Call on load to set initial state
         }
     });
 </script>

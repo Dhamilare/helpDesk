@@ -1,184 +1,299 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}{{ ticket.title }}{% endblock %}
+{% block title%}{{ ticket.titleИ}}{% endblock %}
 
 {% block content %}
-    <div class="flex flex-col md:flex-row gap-6"> {# Flex container for main columns, gap-6 for spacing #}
-        <div class="w-full md:w-2/3"> {# Main content column (ticket details, comments, attachments) #}
-            {# Ticket Details Card #}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6"> {# mb-6 for spacing #}
-                <div class="bg-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h4 class="text-xl font-semibold text-gray-800">Ticket: {{ ticket.ticket_number }} - {{ ticket.title }}</h4>
-                    <div>
-                        {% if can_edit %}
+    <div class="container mx-auto px-4 py-8"> {# Centered container with padding #}
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+            <i data-lucide="ticket" class="w-8 h-8 mr-3 text-blue-600"></i> Ticket: {{ ticket.ticket_number }}
+        </h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6"> {# Grid for main content and sidebar #}
+            {# Main content column (ticket details, comments, attachments) - spans 2/3 on medium screens #}
+            <div class="md:col-span-2 space-y-6"> {# space-y-6 for vertical spacing between cards #}
+
+                {# Ticket Details Card #}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <i data-lucide="info" class="w-5 h-5 mr-2"></i> Ticket Information
+                        </h2>
+                        {# Added condition: Hide "Edit Ticket" if ticket status is 'closed' AND if user is not staff #}
+                        {% if user.is_staff and ticket.status != 'closed' %}
                             <a href="{% url 'ticket_update' ticket.pk %}"
-                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <i data-lucide="edit" class="h-4 w-4 mr-1"></i> Edit Ticket
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                <i data-lucide="edit" class="h-4 w-4 mr-2"></i> Edit Ticket
                             </a>
                         {% endif %}
                     </div>
-                </div>
-                <div class="p-6 text-gray-700">
-                    <p class="mb-2"><strong>Status:</strong>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                     {% if ticket.status == 'open' %}bg-green-100 text-green-800
-                                     {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
-                                     {% elif ticket.status == 'resolved' %}bg-blue-100 text-blue-800
-                                     {% elif ticket.status == 'closed' %}bg-gray-100 text-gray-800
-                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {{ ticket.get_status_display }}
-                        </span>
-                    </p>
-                    <p class="mb-2"><strong>Priority:</strong>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                              ></span>
-                            {{ ticket.priority.name }}
-                        </span>
-                    </p>
-                    <p class="mb-2"><strong>Department:</strong> {{ ticket.department.name }}</p>
-                    <p class="mb-2"><strong>Category:</strong> {{ ticket.category.name }}</p>
-                    <p class="mb-2"><strong>Submitter:</strong> {{ ticket.submitter.get_full_name }} ({{ ticket.submitter.email }})</p>
-                    <p class="mb-2"><strong>Assigned To:</strong> {{ ticket.assigned_to.get_full_name|default:"Unassigned" }}</p>
-                    <p class="mb-2"><strong>Created At:</strong> {{ ticket.created_at|date:"Y-m-d H:i" }}</p>
-                    <p class="mb-2"><strong>Due Date:</strong> {{ ticket.due_date|date:"Y-m-d H:i"|default:"N/A" }}</p>
-                    {% if ticket.resolved_at %}
-                        <p class="mb-2"><strong>Resolved At:</strong> {{ ticket.resolved_at|date:"Y-m-d H:i" }}</p>
-                    {% endif %}
-                    <hr class="border-t border-gray-200 my-6"> {# Tailwind hr #}
-                    <h5 class="text-lg font-semibold text-gray-700 mb-2">Description:</h5>
-                    <div class="prose max-w-none text-gray-800"> {# 'prose' class for basic markdown styling of text #}
-                         <p>{{ ticket.description|linebreaksbr }}</p>
-                    </div>
-                </div>
-            </div>
-
-            {# Comments Card #}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-                    <h5 class="text-lg font-semibold text-gray-700">Comments</h5>
-                </div>
-                <div class="p-6">
-                    <div id="comments-container" class="space-y-4"> {# space-y-4 for vertical spacing between comments #}
-                        {% for comment in comments %}
-                            <div class="p-4 rounded-lg shadow-sm
-                                        {% if comment.is_internal %}bg-blue-50 border border-blue-200{% else %}bg-gray-50 border border-gray-200{% endif %}">
-                                <div class="flex items-start justify-between text-sm text-gray-600 mb-1">
-                                    <p class="font-semibold">{{ comment.author.get_full_name }} <span class="text-xs text-gray-500">on {{ comment.created_at|date:"Y-m-d H:i" }}</span></p>
-                                    {% if comment.is_internal %}
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            Internal
-                                        </span>
-                                    {% endif %}
-                                </div>
-                                <p class="text-gray-800 leading-relaxed">{{ comment.comment|linebreaksbr }}</p>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">{{ ticket.title }}</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Status</p>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
+                                    {% if ticket.status == 'open' %}bg-green-100 text-green-800
+                                    {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                    {% elif ticket.status == 'resolved' %}bg-blue-100 text-blue-800
+                                    {% elif ticket.status == 'closed' %}bg-gray-100 text-gray-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <i data-lucide="{% if ticket.status == 'open' %}circle-dot{% elif ticket.status == 'in_progress' %}rotate-cw{% elif ticket.status == 'resolved' %}check-circle{% elif ticket.status == 'closed' %}x-circle{% else %}help-circle{% endif %}" class="w-4 h-4 mr-1"></i>
+                                    {{ ticket.get_status_display }}
+                                </span>
                             </div>
-                        {% empty %}
-                            <p class="text-gray-600">No comments yet.</p>
-                        {% endfor %}
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Priority</p>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
+                                    {% if ticket.priority.name == 'High' %}bg-red-100 text-red-800
+                                    {% elif ticket.priority.name == 'Medium' %}bg-orange-100 text-orange-800
+                                    {% elif ticket.priority.name == 'Low' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <i data-lucide="{% if ticket.priority.name == 'High' %}chevrons-up{% elif ticket.priority.name == 'Medium' %}chevron-up{% elif ticket.priority.name == 'Low' %}chevron-down{% else %}minus{% endif %}" class="w-4 h-4 mr-1"></i>
+                                    {{ ticket.priority.name }}
+                                </span>
+                            </div>
+                            <div><p class="text-sm font-medium text-gray-500">Department</p><p>{{ ticket.department.name }}</p></div>
+                            <div><p class="text-sm font-medium text-gray-500">Category</p><p>{{ ticket.category.name }}</p></div>
+                            <div><p class="text-sm font-medium text-gray-500">Submitter</p><p>{{ ticket.submitter.get_full_name }} ({{ ticket.submitter.email }})</p></div>
+                            <div><p class="text-sm font-medium text-gray-500">Assigned To</p><p>{{ ticket.assigned_to.get_full_name|default:"Unassigned" }}</p></div>
+                            <div><p class="text-sm font-medium text-gray-500">Created At</p><p>{{ ticket.created_at|date:"Y-m-d H:i" }}</p></div>
+                            <div><p class="text-sm font-medium text-gray-500">Due Date</p><p>{{ ticket.due_date|date:"Y-m-d H:i"|default:"N/A" }}</p></div>
+                            {% if ticket.resolved_at %}
+                                <div><p class="text-sm font-medium text-gray-500">Resolved At</p><p>{{ ticket.resolved_at|date:"Y-m-d H:i" }}</p></div>
+                            {% endif %}
+                        </div>
+
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                            <i data-lucide="align-left" class="w-5 h-5 mr-2"></i> Description
+                        </h4>
+                        <div class="prose max-w-none text-gray-800 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p>{{ ticket.description|linebreaksbr }}</p>
+                        </div>
                     </div>
+                </div>
 
-                    {% if can_comment %}
-                        <hr class="border-t border-gray-200 my-6">
-                        <h6 class="text-md font-semibold text-gray-700 mb-4">Add a Comment</h6>
-                        <form id="comment-form" method="post" action="{% url 'add_ticket_comment' ticket.pk %}" class="space-y-4">
-                            {% csrf_token %}
-                            {% for field in comment_form %}
-                                <div>
-                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                                    {% for error in field.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
+                {# Resolution Details Card (NEW SECTION) - Hidden if ticket status is 'open' #}
+                {% if ticket.resolution and ticket.status != 'open' %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div class="bg-purple-600 text-white px-6 py-4 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <i data-lucide="check-square" class="w-5 h-5 mr-2"></i> Resolution Details
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-4 text-gray-700">
+                            <p class="text-sm font-medium text-gray-500">Resolved By</p>
+                            <p>{{ ticket.assigned_to.get_full_name|default:"N/A" }}</p>
+                        </div>
+                        <div class="mb-4 text-gray-700">
+                            <p class="text-sm font-medium text-gray-500">Resolved At</p>
+                            <p>{{ ticket.resolved_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2"></i> Resolution Notes
+                        </h4>
+                        <div class="prose max-w-none text-gray-800 bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <p>{{ ticket.resolution|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Comments Card #}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="messages-square" class="w-5 h-5 mr-2"></i> Comments
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="comments-container" class="space-y-5"> {# Increased spacing #}
+                            {% for comment in comments %}
+                                <div class="p-4 rounded-lg shadow-sm border
+                                        {% if comment.is_internal %}bg-blue-50 border-blue-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+                                    <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                        <div class="flex items-center">
+                                            <i data-lucide="user-circle" class="w-5 h-5 mr-2 text-gray-500"></i>
+                                            <p class="font-semibold text-gray-700">{{ comment.author.get_full_name }} <span class="text-xs text-gray-500 ml-1">on {{ comment.created_at|date:"Y-m-d H:i" }}</span></p>
+                                        </div>
+                                        {% if comment.is_internal %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                Internal
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-gray-800 leading-relaxed">{{ comment.comment|linebreaksbr }}</p>
                                 </div>
+                            {% empty %}
+                                <p class="text-gray-600 text-center py-4">No comments yet. Be the first to add one!</p>
                             {% endfor %}
-                            <button type="submit"
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <i data-lucide="message-square-plus" class="h-4 w-4 mr-2"></i> Add Comment
-                            </button>
-                        </form>
-                    {% else %}
-                        <p class="text-gray-500 mt-6">You do not have permission to add comments to this ticket.</p>
-                    {% endif %}
+                        </div>
+
+                        {% if can_comment and ticket.status != 'closed' %} {# Added condition to hide comment form if ticket is closed #}
+                            <hr class="border-t border-gray-200 my-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i data-lucide="message-square-plus" class="w-5 h-5 mr-2"></i> Add a Comment
+                            </h3>
+                            <form id="comment-form" method="post" action="{% url 'add_ticket_comment' ticket.pk %}" class="space-y-4">
+                                {% csrf_token %}
+                                {% for field in comment_form %}
+                                    <div>
+                                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" }}
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="send" class="h-4 w-4 mr-2"></i> Post Comment
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="text-gray-500 text-center mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                {% if ticket.status == 'closed' %}
+                                    Comments cannot be added to a closed ticket.
+                                {% else %}
+                                    You do not have permission to add comments to this ticket.
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Attachments Card #}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="paperclip" class="w-5 h-5 mr-2"></i> Attachments
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                            {% for attachment in ticket.attachments.all %}
+                                <li class="flex justify-between items-center py-3 px-4 hover:bg-gray-50 transition duration-150 ease-in-out">
+                                    <a href="{{ attachment.file.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 flex items-center font-medium">
+                                        <i data-lucide="file-text" class="h-5 w-5 mr-2 text-gray-500"></i>
+                                        {{ attachment.file.name|cut:"uploads/tickets/" }}
+                                    </a>
+                                    <small class="text-gray-500 text-xs flex items-center">
+                                        <i data-lucide="upload" class="h-3 w-3 mr-1"></i> Uploaded by {{ attachment.uploaded_by.get_full_name }} on {{ attachment.uploaded_at|date:"Y-m-d H:i" }}
+                                    </small>
+                                </li>
+                            {% empty %}
+                                <li class="py-4 px-4 text-gray-600 text-center">No attachments for this ticket.</li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if can_edit and ticket.status != 'closed' %} {# Added condition to hide upload form if ticket is closed #}
+                            <hr class="border-t border-gray-200 my-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i data-lucide="file-plus" class="w-5 h-5 mr-2"></i> Upload New Attachment
+                            </h3>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'upload_ticket_attachment' ticket.pk %}" class="space-y-4">
+                                {% csrf_token %}
+                                {% for field in attachment_form %}
+                                    <div>
+                                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ field.label }}
+                                        </label>
+                                        <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                                               class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
+                                                      focus:outline-none focus:border-blue-500 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4
+                                                      file:rounded-md file:border-0 file:text-sm file:font-semibold
+                                                      file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-150 ease-in-out">
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="upload" class="h-4 w-4 mr-2"></i> Upload File
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="text-gray-500 text-center mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                {% if ticket.status == 'closed' %}
+                                    Attachments cannot be added to a closed ticket.
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
-            {# Attachments Card #}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-                    <h5 class="text-lg font-semibold text-gray-700">Attachments</h5>
-                </div>
-                <div class="p-6">
-                    <ul class="divide-y divide-gray-200 border border-gray-200 rounded-md mb-4"> {# Tailwind list styling #}
-                        {% for attachment in ticket.attachments.all %}
-                            <li class="flex justify-between items-center py-2 px-4 hover:bg-gray-50">
-                                <a href="{{ attachment.file.url }}" target="_blank" class="text-blue-600 hover:underline flex items-center">
-                                    <i data-lucide="file" class="h-4 w-4 mr-2 text-gray-500"></i> {# Lucide File icon #}
-                                    {{ attachment.file.name|cut:"uploads/tickets/" }}
+            {# Right Sidebar for Ticket History & Quick Actions #}
+            <div class="md:col-span-1 space-y-6">
+                {% if user.is_staff %}
+                    {# Quick Actions Card (New!) #}
+                    {% if can_edit or can_assign or can_change_status %} {# Add conditions for quick actions #}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                        <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                                <i data-lucide="zap" class="w-5 h-5 mr-2 text-blue-600"></i> Quick Actions
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            {% if can_assign and ticket.status != 'closed' %} {# Hide assign action if ticket is closed #}
+                                <a href="{% url 'ticket_assign_agent' ticket.pk %}"
+                                   class="w-full flex items-center justify-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="user-plus" class="h-4 w-4 mr-2"></i> Assign Agent
                                 </a>
-                                <small class="text-gray-500 text-xs">Uploaded by {{ attachment.uploaded_by.get_full_name }} on {{ attachment.uploaded_at|date:"Y-m-d H:i" }}</small>
-                            </li>
-                        {% empty %}
-                            <li class="py-2 px-4 text-gray-600">No attachments.</li>
-                        {% endfor %}
-                    </ul>
-
-                    {% if can_edit %} {# Assuming upload permission is tied to edit permission for simplicity #}
-                        <h6 class="text-md font-semibold text-gray-700 mb-4">Upload Attachment</h6>
-                        <form method="post" enctype="multipart/form-data" action="{% url 'upload_ticket_attachment' ticket.pk %}" class="space-y-4">
-                            {% csrf_token %}
-                            {% for field in attachment_form %}
-                                <div>
-                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                        {{ field.label }}
-                                    </label>
-                                    {# Apply special class for file input #}
-                                    <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                                           class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
-                                                  focus:outline-none focus:border-blue-500 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4
-                                                  file:rounded-md file:border-0 file:text-sm file:font-semibold
-                                                  file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100">
-                                    {% for error in field.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endfor %}
-                            <button type="submit"
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                                <i data-lucide="upload" class="h-4 w-4 mr-2"></i> Upload File
-                            </button>
-                        </form>
+                            {% endif %}
+                            {% if can_change_status and ticket.status != 'closed' %} {# Hide change status action if ticket is closed #}
+                                <a href="{% url 'ticket_change_status' ticket.pk %}"
+                                   class="w-full flex items-center justify-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i> Change Status
+                                </a>
+                            {% endif %}
+                            {# Only show 'Close Ticket' if it's not already closed and user has permission #}
+                            {% if user.is_staff or user.is_superuser and ticket.status != 'closed' %}
+                                <a href="#"
+                                   class="w-full flex items-center justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
+                                    <i data-lucide="check-circle-2" class="h-4 w-4 mr-2"></i> Close Ticket
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
                     {% endif %}
-                </div>
-            </div>
-        </div>
 
-        {# Right Sidebar for Ticket History #}
-        <div class="w-full md:w-1/3">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-                    <h5 class="text-lg font-semibold text-gray-700">Ticket History</h5>
-                </div>
-                <div class="p-6">
-                    <ul class="divide-y divide-gray-200"> {# Flush list styling with dividers #}
-                        {% for history_entry in ticket_history %}
-                            <li class="py-3">
-                                <p class="text-xs text-gray-500 mb-1">{{ history_entry.timestamp|date:"Y-m-d H:i" }} by <span class="font-medium text-gray-700">{{ history_entry.user.get_full_name }}</span>:</p>
-                                <p class="text-sm text-gray-800">{{ history_entry.change_description }}</p>
-                            </li>
-                        {% empty %}
-                            <li class="py-3 text-gray-600">No history recorded for this ticket.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+
+                    {# Ticket History Card #}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                                <i data-lucide="history" class="w-5 h-5 mr-2"></i> Ticket History
+                            </h2>
+                        </div>
+                        <div class="p-6 max-h-96 overflow-y-auto custom-scrollbar"> {# Added max-height and scrollbar #}
+                            <ul class="divide-y divide-gray-200">
+                                {% for history_entry in ticket_history %}
+                                    <li class="py-3">
+                                        <p class="text-xs text-gray-500 mb-1 flex items-center">
+                                            <i data-lucide="clock" class="h-3 w-3 mr-1"></i>
+                                            {{ history_entry.timestamp|date:"Y-m-d H:i" }} by <span class="font-medium text-gray-700 ml-1">{{ history_entry.user.get_full_name }}</span>:
+                                        </p>
+                                        <p class="text-sm text-gray-800">{{ history_entry.change_description }}</p>
+                                    </li>
+                                {% empty %}
+                                    <li class="py-3 text-gray-600 text-center">No history recorded for this ticket yet.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %} {# End of if user.is_staff for sidebar #}
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script> {# Lucide JS import #}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons(); // Initialize Lucide icons on page load
@@ -214,10 +329,13 @@
                 .then(data => {
                     if (data.success) {
                         const newCommentHtml = `
-                            <div class="p-4 rounded-lg shadow-sm ${data.comment.is_internal ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200'}">
-                                <div class="flex items-start justify-between text-sm text-gray-600 mb-1">
-                                    <p class="font-semibold">${data.comment.author} <span class="text-xs text-gray-500">on ${data.comment.created_at}</span></p>
-                                    ${data.comment.is_internal ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Internal</span>' : ''}
+                            <div class="p-4 rounded-lg shadow-sm border ${data.comment.is_internal ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}">
+                                <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                    <div class="flex items-center">
+                                        <i data-lucide="user-circle" class="w-5 h-5 mr-2 text-gray-500"></i>
+                                        <p class="font-semibold text-gray-700">${data.comment.author} <span class="text-xs text-gray-500 ml-1">on ${data.comment.created_at}</span></p>
+                                    </div>
+                                    ${data.comment.is_internal ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Internal</span>' : ''}
                                 </div>
                                 <p class="text-gray-800 leading-relaxed">${data.comment.comment.replace(/\n/g, '<br>')}</p>
                             </div>
@@ -229,6 +347,7 @@
                         if (noCommentsPara && noCommentsPara.innerText.includes('No comments yet.')) {
                             noCommentsPara.remove();
                         }
+                        lucide.createIcons(); // Re-initialize Lucide icons for new content
                     } else {
                         alert('Error adding comment: ' + (data.error || 'Unknown error'));
                         // Optionally, display validation errors from data.errors
@@ -242,4 +361,21 @@
         }
     });
 </script>
+<style>
+    /* Custom scrollbar for Ticket History */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
 {% endblock %}

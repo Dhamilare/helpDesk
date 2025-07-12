@@ -4,18 +4,27 @@ register = template.Library()
 
 @register.filter
 def can_edit_ticket(ticket, user):
-    """
-    Checks if the given user has permission to edit the specific ticket.
-    This logic mirrors the can_edit_ticket method in TicketDetailView.
-    """
     if not user.is_authenticated:
         return False
+    
+    # NEW CONDITION: User must be staff to edit any ticket
+    if not user.is_staff:
+        return False
+
+    if user.is_superuser:
+        return True # Superusers can always edit
 
     if hasattr(user, 'userprofile'):
         if user.userprofile.is_supervisor:
-            return True
-        elif user.userprofile.is_agent:
-            return (ticket.assigned_to == user or
-                    ticket.department == user.userprofile.department)
+            return True # Supervisors can always edit
+        
+        if user.userprofile.is_agent:
+            # Agents can edit tickets assigned to them or in their department
+            if ticket.assigned_to == user or ticket.department == user.userprofile.department:
+                return True
 
-    return ticket.submitter == user
+    # If the user is neither supervisor/agent but is staff and the submitter
+    if ticket.submitter == user:
+        return True 
+        
+    return False

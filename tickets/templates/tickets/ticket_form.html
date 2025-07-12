@@ -6,52 +6,107 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex justify-center">
-    <div class="w-full max-w-3xl">
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-            <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800">
-                    {% if object %}Edit Ticket{% else %}Create New Ticket{% endif %}
-                </h3>
-            </div>
-            <div class="p-6">
-                <form method="post" enctype="multipart/form-data" class="space-y-4">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ field.label }}
-                            </label>
-                            {% if field.field.widget.input_type == 'file' %}
-                                <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                                       class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
-                                              focus:outline-none focus:border-blue-500 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4
-                                              file:rounded-md file:border-0 file:text-sm file:font-semibold
-                                              file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            {% else %}
-                                {{ field|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" }}
-                            {% endif %}
-                            {% if field.help_text %}
-                                <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-center">
+        <div class="w-full max-w-3xl">
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 flex items-center justify-between">
+                    <h3 class="text-2xl font-bold text-white flex items-center">
+                        {% if object %}
+                            <i data-lucide="edit-3" class="w-7 h-7 mr-3"></i> Edit Ticket
+                        {% else %}
+                            <i data-lucide="ticket-plus" class="w-7 h-7 mr-3"></i> Create New Ticket
+                        {% endif %}
+                    </h3>
+                    {% if object %}
+                    <a href="{% url 'ticket_detail' object.pk %}"
+                       class="text-blue-200 hover:text-white transition-colors flex items-center text-sm">
+                        <i data-lucide="eye" class="w-4 h-4 mr-1"></i> View Ticket
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="p-6">
+                    <form method="post" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
 
-                    <div class="flex items-center justify-start space-x-3 mt-6">
-                        <button type="submit"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <i data-lucide="save" class="h-4 w-4 mr-2"></i>
-                            {% if object %}Update Ticket{% else %}Create Ticket{% endif %}
-                        </button>
-                        <a href="{% if object %}{% url 'ticket_detail' object.pk %}{% else %}{% url 'ticket_list' %}{% endif %}"
-                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <i data-lucide="x-circle" class="h-4 w-4 mr-2"></i> Cancel
-                        </a>
-                    </div>
-                </form>
+                        {% if form.non_field_errors %}
+                            <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md" role="alert">
+                                <p class="font-bold">Please correct the following errors:</p>
+                                <ul class="mt-1 list-disc list-inside">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                            <div class="relative group">
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-800 mb-1">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-red-500">*</span>
+                                    {% endif %}
+                                </label>
+                                {% if field.field.widget.input_type == 'file' %}
+                                    <label class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-md cursor-pointer bg-white text-gray-700 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition duration-150 ease-in-out">
+                                        <i data-lucide="upload-cloud" class="h-5 w-5 mr-2 text-gray-500"></i>
+                                        <span class="text-sm font-medium">
+                                            {% if field.value %}
+                                                {{ field.value.name|truncatechars:30 }} (Click to change)
+                                            {% else %}
+                                                Choose a file or drag it here
+                                            {% endif %}
+                                        </span>
+                                        <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" class="sr-only">
+                                    </label>
+                                    {% if field.value %}
+                                        <div class="flex items-center text-sm text-gray-600 mt-2">
+                                            <i data-lucide="file" class="h-4 w-4 mr-1 text-gray-500"></i>
+                                            Current: <a href="{{ field.value.url }}" target="_blank" class="text-blue-600 hover:underline ml-1">{{ field.value.name }}</a>
+                                            {% if field.field.required == False %} {# Allows clearing if not required #}
+                                                <input type="checkbox" name="{{ field.name }}-clear" id="{{ field.name }}-clear" class="ml-4 mr-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                                                <label for="{{ field.name }}-clear" class="text-red-600">Clear</label>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    {# Apply base classes first #}
+                                    {% with base_classes="mt-1 block w-full px-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 placeholder-gray-400" %}
+                                        {# Conditionally add aria-describedby if help_text exists #}
+                                        {% if field.help_text %}
+                                            {{ field|add_class:base_classes|attr:"aria-describedby:"|add:field.id_for_label|add:"-help" }}
+                                        {% else %}
+                                            {{ field|add_class:base_classes }}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <p id="{{ field.id_for_label }}-help" class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i data-lucide="alert-circle" class="h-4 w-4 mr-1"></i> {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
+                            <a href="{% if object %}{% url 'ticket_detail' object.pk %}{% else %}{% url 'ticket_list' %}{% endif %}"
+                               class="inline-flex items-center px-5 py-2 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                <i data-lucide="x-circle" class="h-5 w-5 mr-2"></i> Cancel
+                            </a>
+                            <button type="submit"
+                                    class="inline-flex items-center px-5 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                <i data-lucide="save" class="h-5 w-5 mr-2"></i>
+                                {% if object %}Update Ticket{% else %}Create Ticket{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -59,13 +114,43 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         lucide.createIcons();
 
         const departmentSelect = document.getElementById('id_department');
         const categorySelect = document.getElementById('id_category');
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileInputLabel = fileInput ? fileInput.closest('label') : null;
+
+        // Function to update the file input label text
+        function updateFileInputLabel() {
+            if (fileInput && fileInputLabel) {
+                if (fileInput.files.length > 0) {
+                    fileInputLabel.querySelector('span').textContent = fileInput.files[0].name;
+                } else if (fileInput.dataset.currentFile) {
+                    fileInputLabel.querySelector('span').textContent = fileInput.dataset.currentFile + " (Click to change)";
+                } else {
+                    fileInputLabel.querySelector('span').textContent = "Choose a file or drag it here";
+                }
+            }
+        }
+
+        // Store current file name if exists for initial label display
+        if (fileInput && fileInput.value) {
+            // Extract just the filename from the path
+            const filePath = fileInput.value;
+            const fileName = filePath.split('\\').pop().split('/').pop(); // Handles both Windows and Unix paths
+            fileInput.dataset.currentFile = fileName;
+        }
+
+        // Update label on file selection
+        if (fileInput) {
+            fileInput.addEventListener('change', updateFileInputLabel);
+            updateFileInputLabel(); // Call initially to set correct label
+        }
+
 
         if (departmentSelect && categorySelect) {
             function updateCategories() {
@@ -73,7 +158,7 @@
                 const currentCategoryId = "{{ object.category.pk|default_if_none:'' }}";
                 const currentCategoryName = "{{ object.category.name|default_if_none:''|escapejs }}";
 
-                categorySelect.innerHTML = '<option value="">----------</option>';
+                categorySelect.innerHTML = '<option value="">----------</option>'; // Clear existing options
 
                 if (departmentId) {
                     fetch(`/ajax/get-categories/?department_id=${departmentId}&ticket_id={{ object.pk|default:"" }}`)
@@ -89,6 +174,7 @@
                                 option.value = category.id;
                                 option.textContent = category.name;
 
+                                // Select the current category if it matches
                                 if (category.id == currentCategoryId) {
                                     option.selected = true;
                                     foundCategory = true;
@@ -97,11 +183,14 @@
                                 categorySelect.appendChild(option);
                             });
 
+                            // If editing and the current category is no longer valid for the department,
+                            // add it as a selected, disabled option with an "Inactive" tag.
                             if (!foundCategory && currentCategoryId) {
                                 const fallbackOption = document.createElement('option');
                                 fallbackOption.value = currentCategoryId;
-                                fallbackOption.textContent = currentCategoryName + " (Inactive)";
+                                fallbackOption.textContent = currentCategoryName + " (Inactive or changed department)";
                                 fallbackOption.selected = true;
+                                fallbackOption.disabled = true; // Make it non-selectable
                                 fallbackOption.className = "text-gray-400 italic";
                                 categorySelect.appendChild(fallbackOption);
                             }
@@ -112,6 +201,7 @@
 
             departmentSelect.addEventListener('change', updateCategories);
 
+            // Trigger update on page load if a department is already selected (e.g., on edit)
             if (departmentSelect.value) {
                 updateCategories();
             }

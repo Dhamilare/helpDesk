@@ -4,123 +4,215 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <div class="space-y-8"> {# General spacing for the dashboard sections #}
-        {# Dashboard Header #}
-        <h2 class="text-3xl font-bold text-gray-800">Dashboard</h2>
-        <div class="border-b border-gray-200 pb-4"></div> {# A modern separator #}
+    <div class="container mx-auto px-4 py-8">
+        <div class="space-y-10"> {# General spacing for the dashboard sections, increased for more breathing room #}
+            {# Dashboard Header #}
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <h2 class="text-4xl font-extrabold text-gray-900 flex items-center">
+                    <i data-lucide="layout-dashboard" class="w-10 h-10 mr-4 text-blue-600"></i>
+                    Dashboard
+                </h2>
+                <a href="{% url 'ticket_create' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    <i data-lucide="plus-circle" class="h-5 w-5 mr-2"></i>
+                    Create New Ticket
+                </a>
+            </div>
 
-        {# Stat Cards Section #}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-            {# Total Tickets Card #}
-            <div class="bg-blue-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
-                <h5 class="text-lg font-semibold mb-2">Total Tickets</h5>
-                <p class="text-5xl font-bold" id="total-tickets">{{ total_tickets }}</p>
-                <i data-lucide="ticket" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
+            {# Stat Cards Section #}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                {# Total Tickets Card #}
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl shadow-lg p-7 flex flex-col items-center justify-center text-center transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                    <i data-lucide="ticket" class="h-12 w-12 mb-3 opacity-90"></i>
+                    <h5 class="text-xl font-bold mb-1">Total Tickets</h5>
+                    <p class="text-6xl font-extrabold" id="total-tickets">{{ total_tickets }}</p>
+                </div>
+                {# Open Tickets Card #}
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-xl shadow-lg p-7 flex flex-col items-center justify-center text-center transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                    <i data-lucide="folder-open" class="h-12 w-12 mb-3 opacity-90"></i>
+                    <h5 class="text-xl font-bold mb-1">Open Tickets</h5>
+                    <p class="text-6xl font-extrabold" id="open-tickets">{{ open_tickets }}</p>
+                </div>
+                {# In Progress Tickets Card #}
+                <div class="bg-gradient-to-br from-sky-500 to-sky-600 text-white rounded-xl shadow-lg p-7 flex flex-col items-center justify-center text-center transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                    <i data-lucide="loader" class="h-12 w-12 mb-3 opacity-90 animate-spin-slow"></i>
+                    <h5 class="text-xl font-bold mb-1">In Progress</h5>
+                    <p class="text-6xl font-extrabold" id="in-progress-tickets">{{ in_progress_tickets }}</p>
+                </div>
+                {# Resolved Tickets Card #}
+                <div class="bg-gradient-to-br from-green-600 to-green-700 text-white rounded-xl shadow-lg p-7 flex flex-col items-center justify-center text-center transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                    <i data-lucide="check-circle" class="h-12 w-12 mb-3 opacity-90"></i>
+                    <h5 class="text-xl font-bold mb-1">Resolved Tickets</h5>
+                    <p class="text-6xl font-extrabold" id="resolved-tickets">{{ resolved_tickets }}</p>
+                </div>
+                {# Overdue Tickets Card #}
+                <div class="bg-gradient-to-br from-red-600 to-red-700 text-white rounded-xl shadow-lg p-7 flex flex-col items-center justify-center text-center transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                    <i data-lucide="alert-triangle" class="h-12 w-12 mb-3 opacity-90"></i>
+                    <h5 class="text-xl font-bold mb-1">Overdue Tickets</h5>
+                    <p class="text-6xl font-extrabold" id="overdue-tickets">{{ overdue_tickets }}</p>
+                </div>
             </div>
-            {# Open Tickets Card #}
-            <div class="bg-yellow-500 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
-                <h5 class="text-lg font-semibold mb-2">Open Tickets</h5>
-                <p class="text-5xl font-bold" id="open-tickets">{{ open_tickets }}</p>
-                <i data-lucide="folder-open" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
-            </div>
-            {# In Progress Tickets Card #}
-            <div class="bg-sky-500 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
-                <h5 class="text-lg font-semibold mb-2">In Progress</h5>
-                <p class="text-5xl font-bold" id="in-progress-tickets">{{ in_progress_tickets }}</p>
-                <i data-lucide="loader" class="h-10 w-10 mt-3 opacity-75 animate-spin-slow"></i> {# Lucide icon + slow spin #}
-            </div>
-            {# Resolved Tickets Card #}
-            <div class="bg-green-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
-                <h5 class="text-lg font-semibold mb-2">Resolved Tickets</h5>
-                <p class="text-5xl font-bold" id="resolved-tickets">{{ resolved_tickets }}</p>
-                <i data-lucide="check-circle" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
-            </div>
-            {# Overdue Tickets Card #}
-            <div class="bg-red-600 text-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center">
-                <h5 class="text-lg font-semibold mb-2">Overdue Tickets</h5>
-                <p class="text-5xl font-bold" id="overdue-tickets">{{ overdue_tickets }}</p>
-                <i data-lucide="alert-triangle" class="h-10 w-10 mt-3 opacity-75"></i> {# Lucide icon #}
-            </div>
-        </div>
 
-        {# Recent Tickets Section #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Recent Tickets</h3>
-                {% if recent_tickets %}
-                    <ul class="bg-white rounded-lg shadow-md divide-y divide-gray-200 overflow-hidden">
-                        {% for ticket in recent_tickets %}
-                            <li class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-                                <a href="{% url 'ticket_detail' ticket.pk %}" class="text-blue-600 hover:underline font-medium">
-                                    <i data-lucide="chevron-right" class="inline-block h-4 w-4 mr-1 text-gray-500"></i>
-                                    <span class="text-gray-800">{{ ticket.ticket_number }}</span> - {{ ticket.title }}
+            {# Main Content Grid for Lists and Charts #}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {# Recent Tickets Section #}
+                <div class="lg:col-span-2"> {# Takes 2/3 width on large screens #}
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <h3 class="text-2xl font-semibold text-gray-800 flex items-center">
+                                <i data-lucide="history" class="w-6 h-6 mr-3 text-gray-600"></i> Recent Tickets
+                            </h3>
+                        </div>
+                        {% if recent_tickets %}
+                            <ul class="divide-y divide-gray-200">
+                                {% for ticket in recent_tickets %}
+                                    <li class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors">
+                                        <a href="{% url 'ticket_detail' ticket.pk %}" class="flex-grow text-blue-600 hover:text-blue-800 font-medium truncate">
+                                            <span class="text-gray-800 font-bold mr-2">#{{ ticket.ticket_number }}</span>
+                                            {{ ticket.title }}
+                                        </a>
+                                        <div class="flex-shrink-0 ml-4">
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                                         {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                                                         {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                                         {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                                                         {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
+                                                         {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                                {{ ticket.get_status_display }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 text-right">
+                                <a href="{% url 'ticket_list' %}" class="text-blue-600 hover:underline text-sm font-medium flex items-center justify-end">
+                                    View All Tickets <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                                 </a>
-                                <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                             {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
-                                             {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
-                                             {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
-                                             {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
-                                             {% else %}bg-purple-100 text-purple-800{% endif %}">
-                                    {{ ticket.get_status_display }}
-                                </span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
-                        <i data-lucide="info" class="h-6 w-6 inline-block mb-2 text-blue-500"></i>
-                        <p>No recent tickets to display.</p>
+                            </div>
+                        {% else %}
+                            <div class="p-6 text-center text-gray-600">
+                                <i data-lucide="info" class="h-8 w-8 inline-block mb-3 text-blue-500"></i>
+                                <p class="text-lg font-medium">No recent tickets to display.</p>
+                                <p class="text-sm text-gray-500 mt-1">Start by creating a new ticket!</p>
+                            </div>
+                        {% endif %}
                     </div>
-                {% endif %}
-            </div>
+                </div>
 
-            {# This section (originally Priority Distribution) will now be directly after Recent Tickets if the second col of first row is removed, or if assigned tickets moves here #}
-            {% if user.userprofile.is_agent %}
-                <div>
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Assigned Tickets (Open/In Progress)</h3>
-                    {% if my_assigned_tickets %}
-                        <ul class="bg-white rounded-lg shadow-md divide-y divide-gray-200 overflow-hidden">
-                            {% for ticket in my_assigned_tickets %}
-                                <li class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-                                    <a href="{% url 'ticket_detail' ticket.pk %}" class="text-blue-600 hover:underline font-medium">
-                                        <i data-lucide="chevron-right" class="inline-block h-4 w-4 mr-1 text-gray-500"></i>
-                                        <span class="text-gray-800">{{ ticket.ticket_number }}</span> - {{ ticket.title }}
+                {# My Assigned Tickets (for agents) / General Info (for regular users) #}
+                <div> {# Takes 1/3 width on large screens #}
+                    {% if user.userprofile.is_agent %}
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                                <h3 class="text-2xl font-semibold text-gray-800 flex items-center">
+                                    <i data-lucide="user-check" class="w-6 h-6 mr-3 text-gray-600"></i> My Assigned Tickets
+                                </h3>
+                            </div>
+                            {% if my_assigned_tickets %}
+                                <ul class="divide-y divide-gray-200">
+                                    {% for ticket in my_assigned_tickets %}
+                                        <li class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors">
+                                            <a href="{% url 'ticket_detail' ticket.pk %}" class="flex-grow text-blue-600 hover:text-blue-800 font-medium truncate">
+                                                <span class="text-gray-800 font-bold mr-2">#{{ ticket.ticket_number }}</span>
+                                                {{ ticket.title }}
+                                            </a>
+                                            <div class="flex-shrink-0 ml-4">
+                                                <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                                             {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
+                                                             {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                                             {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
+                                                             {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
+                                                             {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                                    {{ ticket.get_status_display }}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 text-right">
+                                    {# Corrected: Link to general ticket_list instead of non-existent my_tickets #}
+                                    <a href="{% url 'ticket_list' %}" class="text-blue-600 hover:underline text-sm font-medium flex items-center justify-end">
+                                        View All My Tickets <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                                     </a>
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                                 {% if ticket.status == 'open' %}bg-blue-100 text-blue-800
-                                                 {% elif ticket.status == 'in_progress' %}bg-yellow-100 text-yellow-800
-                                                 {% elif ticket.status == 'resolved' %}bg-green-100 text-green-800
-                                                 {% elif ticket.status == 'closed' %}bg-gray-200 text-gray-800
-                                                 {% else %}bg-purple-100 text-purple-800{% endif %}">
-                                        {{ ticket.get_status_display }}
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                                </div>
+                            {% else %}
+                                <div class="p-6 text-center text-gray-600">
+                                    <i data-lucide="inbox" class="h-8 w-8 inline-block mb-3 text-blue-500"></i>
+                                    <p class="text-lg font-medium">No tickets currently assigned to you.</p>
+                                    <p class="text-sm text-gray-500 mt-1">Great job clearing your queue!</p>
+                                </div>
+                            {% endif %}
+                        </div>
                     {% else %}
-                        <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
-                            <i data-lucide="info" class="h-6 w-6 inline-block mb-2 text-blue-500"></i>
-                            <p>No tickets currently assigned to you.</p>
+                        {# Placeholder for general user info or quick links if not an agent #}
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                                <h3 class="text-2xl font-semibold text-gray-800 flex items-center">
+                                    <i data-lucide="info" class="w-6 h-6 mr-3 text-gray-600"></i> Quick Info
+                                </h3>
+                            </div>
+                            <div class="p-6 text-gray-700 space-y-4">
+                                <p class="text-lg">Welcome, <span class="font-bold text-blue-700">{{ user.first_name|default:user.username }}</span>!</p>
+                                <p>This dashboard provides a quick overview of your ticket activity.</p>
+                                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                                    <a href="{% url 'ticket_create' %}" class="text-blue-600 hover:underline flex items-center"><i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Create a new ticket</a>
+                                    {# Corrected: Link to general ticket_list instead of non-existent my_tickets #}
+                                    <a href="{% url 'ticket_list' %}" class="text-blue-600 hover:underline flex items-center"><i data-lucide="list-checks" class="w-4 h-4 mr-2"></i> View your submitted tickets</a>
+                                    <a href="{% url 'ticket_list' %}" class="text-blue-600 hover:underline flex items-center"><i data-lucide="search" class="w-4 h-4 mr-2"></i> Browse all tickets</a>
+                                </ul>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
-            {% endif %}
+            </div>
+
+            {# Placeholder for Charts (Priority/Category Distribution) - For future integration #}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="pie-chart" class="w-6 h-6 mr-3 text-gray-600"></i> Ticket Priority Distribution
+                        </h3>
+                    </div>
+                    <div class="p-6 text-center text-gray-500 min-h-[200px] flex items-center justify-center">
+                        <p class="text-lg italic">Chart integration coming soon!</p>
+                        {# This is where you'd embed a chart (e.g., Chart.js, D3.js) for priority distribution #}
+                        <canvas id="priorityChart" class="hidden"></canvas> {# Placeholder for chart canvas #}
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="layers" class="w-6 h-6 mr-3 text-gray-600"></i> Tickets by Category
+                        </h3>
+                    </div>
+                    <div class="p-6 text-center text-gray-500 min-h-[200px] flex items-center justify-center">
+                        <p class="text-lg italic">Chart integration coming soon!</p>
+                        {# This is where you'd embed a chart for category distribution #}
+                        <canvas id="categoryChart" class="hidden"></canvas> {# Placeholder for chart canvas #}
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </div>
+
+    {# Loading Spinner for AJAX #}
+    <div id="loading-spinner" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-500"></div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script>
-        // Ensure Lucide icons are created for any dynamically added content by this template
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             // Initial call to update stats on page load
             updateTicketStats();
         });
 
-        // AJAX for dynamic dashboard updates (optional, but good for real-time)
+        // AJAX for dynamic dashboard updates
         function updateTicketStats() {
-            // Add loading spinner display
             const spinner = document.getElementById('loading-spinner');
             if (spinner) spinner.classList.remove('hidden');
 
